@@ -6,3 +6,8 @@
 
 / HomeR GET
 
+-- /games GamesR GET POST
+-- /game/#GameId GET POST
+-- /game/#GameId/round/#RoundId GET POST
+-- /game/#GameId/round/#RoundId/player/#PlayerId GET
+-- /game/#GameId/round/#RoundId/turns GET
