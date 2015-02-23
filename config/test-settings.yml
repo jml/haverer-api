@@ -1,0 +1,2 @@
+database:
+  database: haverer-api_test.sqlite3

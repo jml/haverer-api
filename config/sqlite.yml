@@ -1,0 +1,20 @@
+Default: &defaults
+  database: haverer-api.sqlite3
+  poolsize: 10
+
+Development:
+  <<: *defaults
+
+Testing:
+  database: haverer-api_test.sqlite3
+  <<: *defaults
+
+Staging:
+  database: haverer-api_staging.sqlite3
+  poolsize: 100
+  <<: *defaults
+
+Production:
+  database: haverer-api_production.sqlite3
+  poolsize: 100
+  <<: *defaults
