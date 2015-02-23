@@ -18,8 +18,8 @@ This is a rough draft of the API for haverer.
 
 * Level of traffic is going to be vanishingly small, so scaling considerations
   can wait
-* Initial users will be particularly patient and understand, and so we do not
-  need explicit versioning yet
+* Initial users will be particularly patient and understanding, and so we do
+  not need explicit versioning yet
 
 ## Technology
 
@@ -54,7 +54,7 @@ TurnTimeLimit Seconds
 
 ```
 HTTP/1.1 201 Created
-Location: /games/<id>
+Location: /game/<id>
 ```
 
 #### Errors
@@ -65,6 +65,33 @@ Location: /games/<id>
 * Non-positive time limit
 
 Could possibly error if user not in list of closed playerids.
+
+
+### Any games to play?
+
+```GET /games?open HTTP/1.1```
+
+```
+HTTP/1.1 200 OK
+
+/game/<id1>
+/game/<id2>
+```
+
+
+### Join a game
+
+`POST /game/<id> HTTP/1.1`
+
+```
+HTTP/1.1 200 OK
+```
+
+#### Errors
+
+* Game is already started (i.e. now full)
+* You are not invited
+
 
 ### What's in a game
 
