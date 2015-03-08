@@ -1,0 +1,60 @@
+---
+- hosts: all
+  tasks:
+    # XXX: This is pretty manual. Would just like a thing that says 'install
+    # these packages from this PPA'
+    - name: approve cabal PPA
+      apt_key: keyserver=keyserver.ubuntu.com
+               id=063DAB2BDC0B3F9FCEBC378BFF3AEACEF6F88286
+               state=present
+      sudo: yes
+    - name: add cabal PPA
+      apt_repository: repo='ppa:hvr/ghc' state=present
+      sudo: yes
+    - name: apt-get update
+      sudo: yes
+      apt: update_cache=yes
+    - name: install cabal and ghc
+      sudo: yes
+      apt: pkg={{item}} state=latest
+      with_items:
+        - ghc-7.8.4
+        - cabal-install-1.20
+        - happy-1.19.4
+        - alex-3.1.3
+        - libz-dev
+    # XXX: Perhaps a good idea to remove the PPA at this point?
+    - name: create a user to do the builds
+      sudo: yes
+      user: name=cabal-builder shell=/bin/bash state=present
+    - name: update package list
+      sudo: yes
+      sudo_user: cabal-builder
+      environment:
+        PATH: /opt/ghc/7.8.4/bin:/opt/cabal/1.20/bin:/opt/happy/1.19.4/bin:/opt/alex/3.1.3/bin:{{ ansible_env.PATH }}
+      shell: cabal update
+    - name: upgrade to latest cabal
+      sudo: yes
+      sudo_user: cabal-builder
+      environment:
+        PATH: /opt/ghc/7.8.4/bin:/opt/cabal/1.20/bin:/opt/happy/1.19.4/bin:/opt/alex/3.1.3/bin:{{ ansible_env.PATH }}
+      shell: cabal install cabal-install
+    # XXX: At this point, we have a Linux box configured to build Haskell
+    # packages.
+    #
+    # We want to use the following PATH:
+    #
+    # /home/cabal-builder/.cabal/bin:/opt/ghc/7.8.4/bin:/opt/cabal/1.20/bin:/opt/happy/1.19.4/bin:/opt/alex/3.1.3/bin:{{ ansible_env.PATH }}
+    #
+    # What's the next step? We want to be able to build:
+    # - current working copy
+    # - a given label / revid
+    #
+    # We want to not overwrite the build artifacts from OS X (because that's
+    # just confusing), so that means no using the /vagrant directory
+
+
+# cabal install cabal-install
+# cabal sandbox init
+# cabal install --dependencies-only
+# cabal build
