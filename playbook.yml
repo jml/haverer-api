@@ -1,4 +1,5 @@
 ---
+# XXX: Need to install security updates
 - hosts: all
   vars:
     cabal_user: cabal-builder
