@@ -61,7 +61,8 @@
 
     - name: authorize shelling in
       authorized_key: user="{{ cabal_user }}" key="{{ lookup('file', '/Users/jml/.ssh/id_rsa.pub') }}"
-
+      sudo: yes
+      sudo_user: "{{ cabal_user }}"
     # XXX: At this point, we have a Linux box configured to build Haskell
     # packages under the 'cabal-builder' user.
     #
