@@ -1,0 +1,63 @@
+---
+# XXX: Need to install security updates
+# XXX: Gracefully handle being offline
+- hosts: all
+  vars:
+    cabal_user: cabal-builder
+  tasks:
+    # XXX: This is pretty manual. Would just like a thing that says 'install
+    # these packages from this PPA'
+
+    # XXX: Currently this *always* tries to add the key, even if it's already
+    # added.
+    - name: approve cabal PPA
+      apt_key: keyserver=keyserver.ubuntu.com
+               id=063DAB2BDC0B3F9FCEBC378BFF3AEACEF6F88286
+               state=present
+      sudo: yes
+
+    - name: add cabal PPA
+      apt_repository: repo='ppa:hvr/ghc' state=present
+      sudo: yes
+
+    - name: apt-get update
+      sudo: yes
+      apt: update_cache=yes
+
+    - name: install cabal and ghc
+      sudo: yes
+      apt: pkg={{item}} state=latest
+      with_items:
+        - ghc-7.8.4
+        - cabal-install-1.20
+        - happy-1.19.4
+        - alex-3.1.3
+        - libz-dev
+
+    # XXX: Perhaps a good idea to remove the PPA at this point?
+    - name: create a user to do the builds
+      sudo: yes
+      user: name={{ cabal_user }} shell=/bin/bash state=present
+
+    - name: add paths to their shell
+      sudo: yes
+      sudo_user: "{{ cabal_user }}"
+      copy: content="export PATH=/opt/ghc/7.8.4/bin:/opt/cabal/1.20/bin:/opt/happy/1.19.4/bin:/opt/alex/3.1.3/bin:{{ ansible_env.PATH }}"
+            dest="/home/{{ cabal_user }}/.bash_aliases"
+
+    - name: update package list
+      sudo: yes
+      sudo_user: "{{ cabal_user }}"
+      environment:
+        PATH: /opt/ghc/7.8.4/bin:/opt/cabal/1.20/bin:/opt/happy/1.19.4/bin:/opt/alex/3.1.3/bin:{{ ansible_env.PATH }}
+      shell: cabal update
+
+    - name: upgrade to latest cabal
+      sudo: yes
+      sudo_user: "{{ cabal_user }}"
+      environment:
+        PATH: /opt/ghc/7.8.4/bin:/opt/cabal/1.20/bin:/opt/happy/1.19.4/bin:/opt/alex/3.1.3/bin:{{ ansible_env.PATH }}
+      shell: cabal install cabal-install
+
+    # XXX: At this point, we have a Linux box configured to build Haskell
+    # packages under the 'cabal-builder' user.

@@ -16,3 +16,7 @@ Please file issues on the
 
 Are most welcome.
 
+## Further reading
+
+* [Design](docs/Design.md)
+* [Deployment](docs/Deployment.md)
