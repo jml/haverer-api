@@ -87,12 +87,14 @@ def _binary_dist(tree_path, output_path):
 @task
 def bdist(tree_path):
     """Download the build from the server."""
+    # XXX: Include the revid in the filename too
     with remote_temp_dir() as temp_dir:
         tarball_path = os.path.join(temp_dir, 'haverer-api-x86_64-linux.tar.gz')
         _binary_dist(tree_path, tarball_path)
         get(tarball_path)
 
 
+# XXX: Rather than use a tarball here, upload the whole directory.
 def _source_dist(prefix, revid, directory):
     """Build a tarball of the given revid.
 
@@ -118,7 +120,8 @@ def sdist():
     except OSError as e:
         if e.errno != errno.EEXIST:
             raise
-    return _source_dist('haverer-api-latest', 'HEAD', directory)
+    revno = local('git rev-parse HEAD', capture=True).strip()
+    return _source_dist('haverer-api-{}'.format(revno), 'HEAD', directory)
 
 
 @task
