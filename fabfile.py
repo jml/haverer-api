@@ -26,6 +26,7 @@ CABAL_PATH = os.pathsep.join([
 
 @task
 def vagrant():
+    """Configure other tasks to operate on Vagrant instance."""
     # XXX: Copied from
     # http://sysadminpy.com/sysadmin/2011/04/30/use-fabric-on-vagrant-instances/
     #
@@ -85,6 +86,7 @@ def _binary_dist(tree_path, output_path):
 
 @task
 def bdist(tree_path):
+    """Download the build from the server."""
     with remote_temp_dir() as temp_dir:
         tarball_path = os.path.join(temp_dir, 'haverer-api-x86_64-linux.tar.gz')
         _binary_dist(tree_path, tarball_path)
@@ -121,6 +123,7 @@ def sdist():
 
 @task
 def build():
+    """Build current HEAD on the server and download the binary."""
     source_tarball = sdist()
     build_tree = source_to_binary(source_tarball)
     bdist(build_tree)
