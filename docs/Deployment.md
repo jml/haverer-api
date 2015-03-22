@@ -15,6 +15,25 @@
 * As cheap to run in production as possible
 * One button rollbacks
 
+## Procedure
+
+### Set up the build server
+
+`vagrant up`
+`vagrant provision`
+
+### Build the binary
+
+`fab vagrant build`
+
+This will:
+
+ 1. Make a source distribution from HEAD
+ 2. Upload it to the Vagrant instance
+ 3. Build it on that Vagrant instance
+ 4. Download a tarball containing the binary and necessary configs
+
+
 ## References
 
 ### General ideas
