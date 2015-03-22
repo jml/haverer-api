@@ -19,8 +19,10 @@
 
 ### Set up the build server
 
-`vagrant up`
-`vagrant provision`
+```
+vagrant up
+vagrant provision
+```
 
 ### Build the binary
 
