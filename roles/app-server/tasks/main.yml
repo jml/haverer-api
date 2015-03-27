@@ -1,8 +1,4 @@
 
-- name: apt-get update
-  sudo: yes
-  apt: update_cache=yes
-
 - name: install system dependencies
   sudo: yes
   apt: pkg={{item}} state=latest
