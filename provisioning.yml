@@ -65,6 +65,7 @@
         record: "{{ domain_name }}"
         type: A
         value: "{{ eip.public_ip }}"
+        ttl: 600  # Short TTL while we're still figuring things out
 
     - name: configure static server DNS
       route53:
