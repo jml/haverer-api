@@ -4,6 +4,12 @@
 
 *Eventually, this should become a guide on the deployment process*
 
+## Prerequisites
+
+* ansible 1.5+
+* vagrant 1.7.2
+* fabric 1.10.1
+
 ## Requirements
 
 * One button build step
