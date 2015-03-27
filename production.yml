@@ -6,7 +6,7 @@
   vars:
     http_port: 80
     domain_name: haverer.jml.io
-    app_server_port: 3000
     static_domain_name: static.haverer.jml.io
+    app_server_port: 3000
     static_file_path: /home/haverer-api/static/
     app_server_user: haverer-api
