@@ -49,6 +49,7 @@ This will:
 * Make sure `localhost` is listed in a file under `/etc/ansible/hosts`
 * `ansible-playbook provisioning.yml`
 
+**Note**: Assumes the key is called "mumak aws"
 
 ### Deploy to production
 
