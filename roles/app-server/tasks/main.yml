@@ -1,0 +1,42 @@
+
+- name: apt-get update
+  sudo: yes
+  apt: update_cache=yes
+
+- name: install system dependencies
+  sudo: yes
+  apt: pkg={{item}} state=latest
+  with_items:
+    - libgmp10
+    - nginx
+
+- name: write nginx.conf
+  sudo: yes
+  template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf
+  notify:
+    - restart nginx
+
+- name: configure haverer-api upstart job
+  sudo: yes
+  template: src=haverer-api.upstart.j2 dest=/etc/init/haverer-api.conf
+
+- name: create app-server user
+  sudo: yes
+  user:
+    state: present
+    name: "{{ app_server_user }}"
+    system: yes
+
+# XXX: We probably don't want to always upload. We actually only want to
+# upload if there's a delta. Perhaps the right way to do this is to have the
+# binary in some kind of binary package repo.
+- name: upload the app-server binary
+  sudo: yes
+  sudo_user: "{{ app_server_user }}"
+  unarchive:
+    src: "{{ binary_path }}"
+    dest: "/home/{{ app_server_user }}"
+    copy: yes
+    owner: "{{ app_server_user }}"
+  notify:
+    - restart app-server

@@ -1,0 +1,52 @@
+
+# This is the default Ubuntu nginx.conf with comments stripped and
+# configuration for haverer-api added instead.
+
+user www-data;
+worker_processes 4;
+pid /run/nginx.pid;
+
+events {
+	worker_connections 768;
+}
+
+
+# XXX: IPv6 ?
+
+http {
+
+	sendfile on;
+	tcp_nopush on;
+	tcp_nodelay on;
+	keepalive_timeout 65;
+	types_hash_max_size 2048;
+
+	include /etc/nginx/mime.types;
+	default_type application/octet-stream;
+
+	access_log /var/log/nginx/access.log;
+	error_log /var/log/nginx/error.log;
+
+	gzip on;
+	gzip_disable "msie6";
+
+
+    server {
+        listen {{ http_port }}; # Incoming port for Nginx
+        server_name {{ domain_name }};
+        location / {
+            proxy_pass http://127.0.0.1:{{ app_server_port }}; # Reverse proxy to your Yesod app
+        }
+    }
+
+    server {
+        listen {{ http_port }};
+        server_name {{ static_domain_name }};
+        root {{ static_file_path }};
+        # Since yesod-static appends a content hash in the query string,
+        # we are free to set expiration dates far in the future without
+        # concerns of stale content.
+        expires max;
+    }
+
+}
