@@ -12,3 +12,5 @@
     static_file_path: /home/haverer-api/static/
     static_location: /haverer
     app_server_user: haverer-api
+    ssl_certificate_path: /etc/ssl/certs/jml.io.bundle;
+    ssl_key_path: /etc/ssl/private/jml.io.key;
