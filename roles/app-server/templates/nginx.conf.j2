@@ -40,13 +40,44 @@ http {
     }
 
     server {
+           listen {{ https_port }};
+           server_name {{ domain_name }};
+
+           ssl on;
+           # XXX: Make these variables. Upload the certs as part of deployment
+           # process.
+           ssl_certificate /etc/ssl/certs/jml.io.bundle;
+           ssl_certificate_key /etc/ssl/private/jml.io.key;
+
+           location / {
+                    proxy_pass http://127.0.0.1:{{ app_server_port }};
+           }
+    }
+
+    server {
         listen {{ http_port }};
         server_name {{ static_domain_name }};
-        root {{ static_file_path }};
-        # Since yesod-static appends a content hash in the query string,
-        # we are free to set expiration dates far in the future without
-        # concerns of stale content.
-        expires max;
+
+           location /haverer {
+                    alias {{ static_file_path }};
+                    expires max;
+           }
+    }
+
+    server {
+           listen {{ https_port }};
+           server_name {{ static_domain_name }};
+
+           ssl on;
+           # XXX: Make these variables. Upload the certs as part of deployment
+           # process.
+           ssl_certificate /etc/ssl/certs/jml.io.bundle;
+           ssl_certificate_key /etc/ssl/private/jml.io.key;
+
+           location {{ static_location }} {
+                    alias {{ static_file_path }};
+                    expires max;
+           }
     }
 
 }

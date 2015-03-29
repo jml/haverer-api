@@ -7,8 +7,9 @@
     ami_id: ami-29ebb519  # Ubuntu 14.04 amd64 server
     region: us-west-2  # XXX: Arbitrarily chosen
     http_port: 80
+    https_port: 443
     domain_name: haverer.jml.io
-    static_domain_name: static.haverer.jml.io
+    static_domain_name: static.jml.io
   tasks:
     - name: configure security group
       ec2_group:
@@ -19,6 +20,10 @@
           - proto: tcp
             from_port: 80
             to_port: "{{ http_port }}"
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 443
+            to_port: "{{ https_port }}"
             cidr_ip: 0.0.0.0/0
           - proto: tcp
             from_port: 22
