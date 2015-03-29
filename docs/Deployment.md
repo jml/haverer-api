@@ -4,6 +4,12 @@
 
 *Eventually, this should become a guide on the deployment process*
 
+## Prerequisites
+
+* ansible 1.5+
+* vagrant 1.7.2
+* fabric 1.10.1
+
 ## Requirements
 
 * One button build step
@@ -35,6 +41,21 @@ This will:
  3. Build it on that Vagrant instance
  4. Download a tarball containing the binary and necessary configs
 
+### Provision a service
+
+TBD
+
+### Deploy to production
+
+```
+ansible-playbook -e binary_path=$PATH_TO_BINARY production.yml
+```
+
+This will set up all the hosts that are tagged with `Name=haverer-api`.
+
+Current build puts binary in `127.0.0.1-2222/haverer-api-x86_64-linux.tar.gz`.
+
+For EC2, need to provide path to private SSH key using `-i`.
 
 ## References
 

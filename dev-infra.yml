@@ -1,0 +1,7 @@
+---
+- name: set up the build servers
+  # XXX: This is wrong. Should be restricted to vagrant hosts.
+  hosts: all
+
+  roles:
+    - ghc-builder
