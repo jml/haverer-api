@@ -102,6 +102,12 @@ instance Yesod App where
 
     makeLogger = return . appLogger
 
+    urlRenderOverride y (StaticR s) =
+      Just $ uncurry (joinPath y (staticRoot $ appSettings y)) $ renderRoute s
+
+    urlRenderOverride _ _ = Nothing
+
+
 -- How to run database actions.
 instance YesodPersist App where
     type YesodPersistBackend App = SqlBackend
