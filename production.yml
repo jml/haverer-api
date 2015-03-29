@@ -1,6 +1,7 @@
 - hosts: tag_Name_haverer-api
   remote_user: ubuntu
   roles:
+    - common
     - app-server
   vars:
     http_port: 80
