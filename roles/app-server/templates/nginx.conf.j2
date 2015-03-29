@@ -32,11 +32,9 @@ http {
 
 
     server {
-        listen {{ http_port }}; # Incoming port for Nginx
+        listen {{ http_port }};
         server_name {{ domain_name }};
-        location / {
-            proxy_pass http://127.0.0.1:{{ app_server_port }}; # Reverse proxy to your Yesod app
-        }
+        return 301 https://$server_name$request_uri;
     }
 
     server {
@@ -57,11 +55,7 @@ http {
     server {
         listen {{ http_port }};
         server_name {{ static_domain_name }};
-
-           location /haverer {
-                    alias {{ static_file_path }};
-                    expires max;
-           }
+        return 301 https://$server_name$request_uri;
     }
 
     server {
