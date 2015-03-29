@@ -9,6 +9,7 @@
 * ansible 1.5+
 * vagrant 1.7.2
 * fabric 1.10.1
+* An AWS account
 
 ## Requirements
 
@@ -43,7 +44,12 @@ This will:
 
 ### Provision a service
 
-TBD
+* Install the
+[ec2 inventory script](http://docs.ansible.com/intro_dynamic_inventory.html#example-aws-ec2-external-inventory-script)
+* Make sure `localhost` is listed in a file under `/etc/ansible/hosts`
+* `ansible-playbook provisioning.yml`
+
+**Note**: Assumes the key is called "mumak aws"
 
 ### Deploy to production
 
