@@ -5,8 +5,12 @@
     - app-server
   vars:
     http_port: 80
+    https_port: 443
     domain_name: haverer.jml.io
-    static_domain_name: static.haverer.jml.io
+    static_domain_name: static.jml.io
     app_server_port: 3000
     static_file_path: /home/haverer-api/static/
+    static_location: /haverer
     app_server_user: haverer-api
+    ssl_certificate_path: /etc/ssl/certs/jml.io.bundle
+    ssl_key_path: /etc/ssl/private/jml.io.key

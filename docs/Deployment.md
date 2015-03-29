@@ -54,7 +54,11 @@ This will:
 ### Deploy to production
 
 ```
-ansible-playbook -e binary_path=$PATH_TO_BINARY production.yml
+ansible-playbook \
+  -e binary_path=$PATH_TO_BINARY \
+  -e local_ssl_certificate_path=$PATH_TO_CERT \
+  -e local_ssl_key_path=$PATH_TO_KEY \
+  production.yml
 ```
 
 This will set up all the hosts that are tagged with `Name=haverer-api`.

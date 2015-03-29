@@ -36,3 +36,15 @@
     owner: "{{ app_server_user }}"
   notify:
     - restart app-server
+
+- name: upload certificate
+  sudo: yes
+  copy:
+    src: "{{ local_ssl_certificate_path }}"
+    dest: "{{ ssl_certificate_path }}"
+
+- name: upload key
+  sudo: yes
+  copy:
+    src: "{{ local_ssl_key_path }}"
+    dest: "{{ ssl_key_path }}"
