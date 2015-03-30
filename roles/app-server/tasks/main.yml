@@ -43,6 +43,16 @@
     src: "{{ local_ssl_certificate_path }}"
     dest: "{{ ssl_certificate_path }}"
 
+- name: upload intermediate certificates
+  sudo: yes
+  copy:
+    src: "{{ local_ssl_ca_path }}"
+    dest: "{{ ssl_ca_path }}"
+
+- name: bundle intermediate certificates with site certificate
+  sudo: yes
+  shell: "cat {{ ssl_ca_path }} >> {{ ssl_certificate_path }}"
+
 - name: upload key
   sudo: yes
   copy:
