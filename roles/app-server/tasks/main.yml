@@ -53,6 +53,10 @@
   sudo: yes
   shell: "cat {{ ssl_ca_path }} >> {{ ssl_certificate_path }}"
 
+- name: bundle intermediate certificates with root certificate
+  sudo: yes
+  shell: "cat {{ ssl_ca_path }} {{ ssl_root_certificate_path }} > {{ ssl_ca_bundle_path }}"
+
 - name: upload key
   sudo: yes
   copy:
