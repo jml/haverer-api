@@ -45,6 +45,7 @@ http {
            ssl_certificate {{ ssl_certificate_path }};
            ssl_certificate_key {{ ssl_key_path }};
            ssl_protocols TLSv1.2 TLSv1.1 TLSv1;
+           add_header Strict-Transport-Security "max-age=31536000; includeSubdomains";
 
            location / {
                     proxy_pass http://127.0.0.1:{{ app_server_port }};
@@ -65,6 +66,7 @@ http {
            ssl_certificate {{ ssl_certificate_path }};
            ssl_certificate_key {{ ssl_key_path }};
            ssl_protocols TLSv1.2 TLSv1.1 TLSv1;
+           add_header Strict-Transport-Security "max-age=31536000; includeSubdomains";
 
            location {{ static_location }} {
                     alias {{ static_file_path }};
