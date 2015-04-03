@@ -1,3 +1,48 @@
 <h1>Haverer games
 
 <p>This ought to be a list of games
+
+
+<h2>Kick off a game
+
+<h3>Request
+
+<pre>
+  POST /games HTTP/1.1
+
+  Players (Open Int | Closed [PlayerId])
+  TurnTimeLimit Seconds
+
+<h3>Response
+
+<pre>
+  HTTP/1.1 201 Created
+  Location: /game/$ID
+
+
+<h3>Errors
+
+<ul>
+  <li>Invalid number of players
+  <li>Unknown player ids
+  <li>Too long a time limit
+  <li>Non-positive time limit
+
+<p>Could possibly error if user not in list of closed playerids.
+
+
+<h2>Any games to play?
+
+<h3>Request
+
+<pre>
+  GET /games?open HTTP/1.1
+
+
+<h3>Response
+
+<pre>
+  HTTP/1.1 200 OK
+
+  /game/$id2
+  /game/$id2
