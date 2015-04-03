@@ -2,6 +2,13 @@ module Handler.Game where
 
 import Import
 
-getGamesR :: Handler Html
-getGamesR = do
-  defaultLayout $ $(widgetFile "games")
+data Game = Game
+
+instance ToJSON Game where
+  toJSON Game { .. } = object []
+
+
+getGamesR :: Handler TypedContent
+getGamesR = selectRep $ do
+  provideRep $ defaultLayout $ $(widgetFile "games")
+  provideJson $ ([] :: [Game])
