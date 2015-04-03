@@ -58,6 +58,7 @@ ansible-playbook \
   -e binary_path=$PATH_TO_BINARY \
   -e local_ssl_certificate_path=$PATH_TO_CERT \
   -e local_ssl_key_path=$PATH_TO_KEY \
+  -e local_ssl_ca_path=$PATH_TO_INTERMEDIATE_CERTIFICATES \
   production.yml
 ```
 
