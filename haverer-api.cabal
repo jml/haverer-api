@@ -21,6 +21,7 @@ library
                      Settings
                      Settings.StaticFiles
                      Handler.Common
+                     Handler.Game
                      Handler.Home
 
     if flag(dev) || flag(library-only)
