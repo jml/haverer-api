@@ -24,8 +24,9 @@ getGameR :: Int -> Handler TypedContent
 getGameR n = do
   allGames <- appAllGames <$> getYesod
   matchingGames <- atomically $ readTVar allGames
-  let (Just game) = matchingGames !? n  -- XXX: Unsafe method!
-  defaultLayoutJson $(widgetFile "game") (returnJson game)
+  case matchingGames !? n of
+   Just game -> defaultLayoutJson $(widgetFile "game") (returnJson game)
+   Nothing -> notFound
 
 
 getGamesR :: Handler TypedContent
@@ -42,5 +43,5 @@ postGamesR = do
   newId <- atomically $ do
     currentGames <- readTVar allGames
     writeTVar allGames (Vector.snoc currentGames (Pending newGame))
-    return $ 1 + Vector.length currentGames
+    return $ Vector.length currentGames
   sendResponseCreated (GameR newId)
