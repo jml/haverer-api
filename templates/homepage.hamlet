@@ -2,6 +2,11 @@
 
 <p>An implementation of a game you know and love
 
+<p class="bg-danger">
+  The API <i>will</i> change and your data <i>will</i> be lost.
+
+You probably want to start by looking at the <a href="@{GamesR}">available games</a>
+
 <p>Source code:
 
 <ul>
