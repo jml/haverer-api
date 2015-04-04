@@ -13,30 +13,40 @@ instance ToJSON Game where
   toJSON Game { .. } = object []
 
 
-findGames :: [Game]
-findGames = []
+allGames :: [Game]
+allGames = []
+
+
+findGames :: [Game] -> Maybe GameStatus -> [Game]
+findGames _ _ = []
 
 
 data GameStatus = Open | InProgress | Finished | Abandoned deriving (Eq, Show)
 
-textToStatus :: Text -> Maybe GameStatus
+
+data BadStatus = BadStatus Text
+
+
+textToStatus :: Text -> Either BadStatus GameStatus
 textToStatus "open" = return Open
-textToStatus _ = Nothing
+textToStatus x = Left $ BadStatus x
+
+
+getStatus :: Maybe Text -> Either BadStatus (Maybe GameStatus)
+getStatus Nothing = Right Nothing
+getStatus (Just x) =
+  case textToStatus x of
+   Right s -> Right (Just s)
+   Left e -> Left e
 
 
 getGamesR :: Handler TypedContent
 getGamesR = do
-  status' <- lookupGetParam "status"
-  s <- case status' of
-   Nothing -> do
-     $logInfo "all"
-     return Open
-   Just status'' ->
-     case textToStatus status'' of
-      Nothing -> invalidArgs ["status"]
-      Just status -> do
-        $logInfo (pack (show status))
-        return status
+  status' <- getStatus <$> lookupGetParam "status"
+  status <- case status' of
+    Left e -> invalidArgs ["status"]
+    Right s -> return s
+  let matchingGames = findGames allGames status
   selectRep $ do
     provideRep $ defaultLayout $ $(widgetFile "games")
-    provideJson $ findGames
+    provideJson $ matchingGames
