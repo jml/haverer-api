@@ -1,5 +1,4 @@
-<h1>Haverer games
-
+<h1>Games
 
 $if null matchingGames
     <p>No games.
@@ -8,6 +7,7 @@ $else
         $forall game <- matchingGames
             <li>#{game}
 
+<h1>API Documentation
 
 <h2>Kick off a game
 
