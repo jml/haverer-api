@@ -3,8 +3,7 @@ module GameManagement (
   GameStatus,
   PendingGame(..),
   findGames,
-  getStatus,
-  allGames,
+  getStatus
   ) where
 
 
@@ -34,10 +33,6 @@ instance ToJSON PendingGame where
 instance FromJSON PendingGame where
   parseJSON (Object v) = OpenG <$> v .: "numPlayers" <*> v .: "turnTimeout"
   parseJSON _ = mzero
-
-
-allGames :: [Game]
-allGames = []
 
 
 findGames :: [Game] -> Maybe GameStatus -> [Game]

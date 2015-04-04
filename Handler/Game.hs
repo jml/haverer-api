@@ -23,7 +23,9 @@ getGamesR = do
   status <- case status' of
     Left e -> invalidArgs ["status"]
     Right s -> return s
-  let matchingGames = findGames allGames status
+  allGames <- appAllGames <$> getYesod
+  allGames' <- atomically $ readTVar allGames
+  let matchingGames = findGames allGames' status
   selectRep $ do
     provideRep $ defaultLayout $ $(widgetFile "games")
     provideJson $ matchingGames
@@ -33,5 +35,9 @@ postGamesR :: Handler TypedContent
 postGamesR = do
   newGame <- requireJsonBody :: Handler PendingGame
   $logInfo (pack $ show newGame)
+  allGames <- appAllGames <$> getYesod
+  atomically $ do
+    currentGames <- readTVar allGames
+    writeTVar allGames (Pending newGame:currentGames)
   -- XXX: Should use sendResponseCreated, giving route to new game
   sendResponseStatus status201 ("CREATED" :: Text)
