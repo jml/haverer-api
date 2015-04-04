@@ -25,18 +25,14 @@ getGameR n = do
   allGames <- appAllGames <$> getYesod
   matchingGames <- atomically $ readTVar allGames
   let (Just game) = matchingGames !? n  -- XXX: Unsafe method!
-  selectRep $ do
-    provideRep $ defaultLayout $ $(widgetFile "game")
-    provideJson $ game
+  defaultLayoutJson $(widgetFile "game") (returnJson game)
 
 
 getGamesR :: Handler TypedContent
 getGamesR = do
   allGames <- appAllGames <$> getYesod
   matchingGames <- atomically $ readTVar allGames
-  selectRep $ do
-    provideRep $ defaultLayout $ $(widgetFile "games")
-    provideJson $ matchingGames
+  defaultLayoutJson $(widgetFile "games") (returnJson matchingGames)
 
 
 postGamesR :: Handler TypedContent
