@@ -1,0 +1,48 @@
+<h1>Game
+
+#{game}
+
+
+<h1>Documentation
+
+<h2>Join a game
+
+<h3>Request
+
+<pre>
+  POST /game/<id> HTTP/1.1`
+
+<h3>Response
+
+<pre>
+  HTTP/1.1 200 OK
+
+<h3>Errors
+
+<ul>
+  <li>Game is already started (i.e. now full)
+  <li>You are not invited
+
+<h2>What's in a game
+
+<h3>Request
+
+<pre>
+  GET /game/<id> HTTP/1.1
+
+<h3>Response
+
+<ul>
+  <li>Are we still waiting for people?
+  <li>Who's playing?
+  <li>What are the scores?
+  <li>Who won?
+  <li>Where's the current round?
+  <li>Date created
+
+
+<h3>Changing the game
+
+Before the game has started, you can <code>PATCH</code> the time limit, and
+also the player set.
+

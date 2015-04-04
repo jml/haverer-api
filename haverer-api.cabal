@@ -21,7 +21,10 @@ library
                      Settings
                      Settings.StaticFiles
                      Handler.Common
+                     Handler.Game
                      Handler.Home
+                     GameManagement
+
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
@@ -81,6 +84,7 @@ library
                  , containers
                  , vector
                  , time
+                 , blaze-html
 
 executable         haverer-api
     if flag(library-only)
