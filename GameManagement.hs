@@ -15,7 +15,11 @@ data Game = Pending PendingGame deriving Show
 
 
 instance ToJSON Game where
-  toJSON _ = object []
+  toJSON (Pending g) = object [
+    "state" .= ("pending" :: Text),
+    "numPlayers" .= numPlayers g,
+    "turnTimeout" .= turnTimeout g
+    ]
 
 
 instance ToJSON PendingGame where
