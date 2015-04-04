@@ -6,7 +6,7 @@
 
 / HomeR GET
 
-/games GamesR GET
+/games GamesR GET POST
 
 -- /games GamesR GET POST
 -- /game/#GameId GET POST
