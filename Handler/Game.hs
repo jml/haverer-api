@@ -5,13 +5,15 @@
 
 module Handler.Game where
 
+import Data.Aeson (encode)
 import GameManagement
 import Text.Blaze.Html (ToMarkup, toMarkup)
+import qualified Text.Blaze.Html5              as H
 import Import
 
 
 instance ToMarkup Game where
-  toMarkup _ = "nothing to see here"
+  toMarkup = H.code . toHtml . decodeUtf8 . encode . toJSON
 
 
 getGamesR :: Handler TypedContent
