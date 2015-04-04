@@ -7,11 +7,13 @@
 module Handler.Game where
 
 import Data.Aeson (encode)
-import Data.List ((!!))
 import GameManagement
 import Text.Blaze.Html (ToMarkup, toMarkup)
 import qualified Text.Blaze.Html5              as H
 import Import
+
+import Data.Vector ((!?))
+import qualified Data.Vector as Vector
 
 
 instance ToMarkup Game where
@@ -22,7 +24,7 @@ getGameR :: Int -> Handler TypedContent
 getGameR n = do
   allGames <- appAllGames <$> getYesod
   matchingGames <- atomically $ readTVar allGames
-  let game = matchingGames !! n  -- XXX: Unsafe method!
+  let (Just game) = matchingGames !? n  -- XXX: Unsafe method!
   selectRep $ do
     provideRep $ defaultLayout $ $(widgetFile "game")
     provideJson $ game
@@ -40,10 +42,9 @@ getGamesR = do
 postGamesR :: Handler TypedContent
 postGamesR = do
   newGame <- requireJsonBody :: Handler PendingGame
-  $logInfo (pack $ show newGame)
   allGames <- appAllGames <$> getYesod
-  atomically $ do
+  newId <- atomically $ do
     currentGames <- readTVar allGames
-    writeTVar allGames (Pending newGame:currentGames)
-  -- XXX: Should use sendResponseCreated, giving route to new game
-  sendResponseStatus status201 ("CREATED" :: Text)
+    writeTVar allGames (Vector.snoc currentGames (Pending newGame))
+    return $ 1 + Vector.length currentGames
+  sendResponseCreated (GameR newId)
