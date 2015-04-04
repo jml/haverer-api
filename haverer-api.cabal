@@ -82,6 +82,7 @@ library
                  , containers
                  , vector
                  , time
+                 , blaze-html
 
 executable         haverer-api
     if flag(library-only)

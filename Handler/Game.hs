@@ -5,12 +5,20 @@
 
 module Handler.Game where
 
+import Text.Blaze.Html (ToMarkup, toMarkup)
 import Import
 
-data Game = Game
+data Game = Game deriving Show
 
 instance ToJSON Game where
   toJSON Game { .. } = object []
+
+
+instance ToMarkup Game where
+  toMarkup _ = "nothing to see here"
+
+instance ToMarkup GameStatus where
+  toMarkup = toMarkup . show
 
 
 allGames :: [Game]

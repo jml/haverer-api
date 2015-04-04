@@ -1,6 +1,17 @@
 <h1>Haverer games
 
-<p>This ought to be a list of games
+
+$maybe status' <- status
+    <p>Showing games that are: #{status'}
+$nothing
+    <p>Showing all games
+
+$if null matchingGames
+    <p>No games.
+$else
+    <ul>
+        $forall game <- matchingGames
+            <li>#{game}
 
 
 <h2>Kick off a game
