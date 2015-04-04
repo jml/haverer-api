@@ -1,11 +1,6 @@
 <h1>Haverer games
 
 
-$maybe status' <- status
-    <p>Showing games that are: #{status'}
-$nothing
-    <p>Showing all games
-
 $if null matchingGames
     <p>No games.
 $else

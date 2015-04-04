@@ -1,18 +1,11 @@
 module GameManagement (
   Game(..),
-  GameStatus,
-  PendingGame(..),
-  findGames,
-  getStatus
+  PendingGame(..)
   ) where
 
 
 import ClassyPrelude.Yesod
 
-
-data GameStatus = Open | InProgress | Finished | Abandoned deriving (Eq, Show)
-
-data BadStatus = BadStatus Text
 
 type Seconds = Int
 
@@ -33,20 +26,3 @@ instance ToJSON PendingGame where
 instance FromJSON PendingGame where
   parseJSON (Object v) = OpenG <$> v .: "numPlayers" <*> v .: "turnTimeout"
   parseJSON _ = mzero
-
-
-findGames :: [Game] -> Maybe GameStatus -> [Game]
-findGames gs _ = gs
-
-
-textToStatus :: Text -> Either BadStatus GameStatus
-textToStatus "open" = return Open
-textToStatus x = Left $ BadStatus x
-
-
-getStatus :: Maybe Text -> Either BadStatus (Maybe GameStatus)
-getStatus Nothing = Right Nothing
-getStatus (Just x) =
-  case textToStatus x of
-   Right s -> Right (Just s)
-   Left e -> Left e

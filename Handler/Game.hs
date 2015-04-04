@@ -13,19 +13,11 @@ import Import
 instance ToMarkup Game where
   toMarkup _ = "nothing to see here"
 
-instance ToMarkup GameStatus where
-  toMarkup = toMarkup . show
-
 
 getGamesR :: Handler TypedContent
 getGamesR = do
-  status' <- getStatus <$> lookupGetParam "status"
-  status <- case status' of
-    Left e -> invalidArgs ["status"]
-    Right s -> return s
   allGames <- appAllGames <$> getYesod
-  allGames' <- atomically $ readTVar allGames
-  let matchingGames = findGames allGames' status
+  matchingGames <- atomically $ readTVar allGames
   selectRep $ do
     provideRep $ defaultLayout $ $(widgetFile "games")
     provideJson $ matchingGames
