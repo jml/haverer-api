@@ -2,6 +2,16 @@
 
 <p>An implementation of a game you know and love
 
+<p>Your current auth ID: #{show maid}
+
+$maybe _ <- maid
+  <p>
+    <a href=@{AuthR LogoutR}>Logout
+$nothing
+  <p>
+    <a href=@{AuthR LoginR}>Go to the login page
+
+
 <p class="bg-danger">
   The API <i>will</i> change and your data <i>will</i> be lost.
 

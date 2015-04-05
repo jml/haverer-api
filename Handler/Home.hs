@@ -11,6 +11,7 @@ import Import
 -- inclined, or create a single monolithic file.
 getHomeR :: Handler Html
 getHomeR = do
+    maid <- maybeAuthId
     defaultLayout $ do
         aDomId <- newIdent
         setTitle "Haverer"

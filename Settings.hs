@@ -55,6 +55,12 @@ data AppSettings = AppSettings
 
     , staticRoot                :: Text
     -- ^ Base for generated URLs for static content
+
+    , googleClientId            :: Text
+    -- ^ Client ID for the Google application used for authentication
+
+    , googleClientSecret        :: Text
+    -- ^ Client secret for the Google application used for authentication
     }
 
 instance FromJSON AppSettings where
@@ -82,6 +88,9 @@ instance FromJSON AppSettings where
         appAnalytics              <- o .:? "analytics"
 
         staticRoot                <- o .: "static-root"
+
+        googleClientId <- o .: "google-client-id"
+        googleClientSecret <- o .: "google-client-secret"
 
         return AppSettings {..}
 
