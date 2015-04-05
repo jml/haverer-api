@@ -10,7 +10,7 @@
 <h3>Request
 
 <pre>
-  POST /game/<id> HTTP/1.1`
+  POST /game/$ID HTTP/1.1
 
 <h3>Response
 
@@ -28,7 +28,7 @@
 <h3>Request
 
 <pre>
-  GET /game/<id> HTTP/1.1
+  GET /game/$ID HTTP/1.1
 
 <h3>Response
 
