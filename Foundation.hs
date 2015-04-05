@@ -4,6 +4,7 @@ import Import.NoFoundation
 import Database.Persist.Sql (ConnectionPool, runSqlPool)
 import Text.Hamlet          (hamletFile)
 import Text.Jasmine         (minifym)
+import Yesod.Auth.Dummy (authDummy)
 import Yesod.Auth.GoogleEmail2 (authGoogleEmail)
 import Yesod.Default.Util   (addStaticContentExternal)
 import Yesod.Core.Types     (Logger)
@@ -141,11 +142,17 @@ instance YesodAuth App where
                     , userPassword = Nothing
                     }
 
-    authPlugins app = [
-      authGoogleEmail (googleClientId $ appSettings app) (googleClientSecret $ appSettings app)
-      ]
+    authPlugins app =
+      case method of
+       "google" -> [authGoogleEmail (googleClientId settings) (googleClientSecret settings)]
+       "dummy" -> [authDummy]
+       _ -> error $ unpack $ ("Unrecognized authentication method: " :: Text) ++ method
+      where
+        settings = appSettings app
+        method = authentication settings
 
     authHttpManager = getHttpManager
+
 
 instance YesodAuthPersist App
 

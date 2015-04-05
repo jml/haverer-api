@@ -2,6 +2,14 @@
 
 A web API for [haverer](https://github.com/jml/haverer).
 
+Live service at https://haverer.jml.io/. Use at your own peril.
+
+Run the devel server with:
+
+```
+AUTHENTICATION_METHOD=dummy yesod devel
+```
+
 ## License
 
 This code is copyright Jonathan M. Lange, 2015, and is made available
