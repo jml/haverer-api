@@ -43,6 +43,18 @@
             from_port: 80
             to_port: 80
             cidr_ip: 178.255.83.1/32
+          # Google Accounts
+          #
+          # As determined by doing a DNS lookup on 'accounts.google.com' and
+          # picking the most relevant looking values from the output of:
+          #
+          # host -t txt _netblocks.google.com
+          # host -t txt _netblocks2.google.com
+          # host -t txt _netblocks3.google.com
+          - proto: tcp
+            from_port: 443
+            to_port: 443
+            cidr_ip: 216.58.192.0/19
 
     - name: provision app servers
       ec2:
