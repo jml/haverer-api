@@ -76,6 +76,11 @@ instance Yesod App where
     isAuthorized (AuthR _) _ = return Authorized
     isAuthorized FaviconR _ = return Authorized
     isAuthorized RobotsR _ = return Authorized
+    isAuthorized HomeR False = return Authorized
+    isAuthorized GamesR False = return Authorized
+    isAuthorized GamesR True = allowLoggedIn
+    isAuthorized (GameR _) _ = return Authorized
+
     -- Default to Authorized for now.
     isAuthorized _ _ = return Authorized
 
@@ -111,6 +116,15 @@ instance Yesod App where
       Just $ uncurry (joinPath y (staticRoot $ appSettings y)) $ renderRoute s
 
     urlRenderOverride _ _ = Nothing
+
+
+-- | Allow anyone who's logged in to do this action.
+allowLoggedIn :: YesodAuth site => HandlerT site IO AuthResult
+allowLoggedIn = do
+  mu <- maybeAuthId
+  return $ case mu of
+   Just _ -> Authorized
+   Nothing -> AuthenticationRequired
 
 
 -- How to run database actions.

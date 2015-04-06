@@ -4,7 +4,7 @@ import Data.Aeson
 import Network.HTTP.Types.Header (hAccept)
 import Network.Wai.Test (simpleBody)
 
-import Settings (appRoot)
+import Handler.Utilities (doLogin, needsLogin, testUrl, StdMethod(POST))
 import TestImport
 
 
@@ -37,16 +37,20 @@ spec = withApp $ do
     statusIs 200
     bodyEquals "[]"
 
+  it "redirects when you try to POST without logging in" $ do
+    needsLogin POST ("/games" :: Text)
+
   it "allows games to be created" $ do
+    doLogin "testuser"
     postJson GamesR $ object [
         "numPlayers" .= (3 :: Int),
         "turnTimeout" .= (3600 :: Int)
         ]
 
     statusIs 201
-    testAppRoot <- encodeUtf8 <$> appRoot <$> appSettings <$> getTestYesod
     -- XXX: Hardcoding 0 unnecessarily and perhaps unhelpfully
-    assertHeader "Location" (testAppRoot ++ "/game/0")
+    gameUrl <- testUrl "/game/0"
+    assertHeader "Location" gameUrl
 
   it "404s on non-existent games" $ do
     get (GameR 0)
@@ -57,8 +61,9 @@ spec = withApp $ do
           "numPlayers" .= (3 :: Int),
           "turnTimeout" .= (3600 :: Int)
           ]
-    postJson GamesR game
 
+    doLogin "testuser"
+    postJson GamesR game
     getJson (GameR 0)
 
     -- XXX: Figure out how to update a JSON object with a new field.

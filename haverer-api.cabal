@@ -134,3 +134,4 @@ test-suite test
                  , http-types
                  , aeson
                  , wai-extra
+                 , network-uri
