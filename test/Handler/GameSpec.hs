@@ -66,7 +66,6 @@ spec = withApp $ do
     postJson GamesR game
     getJson (GameR 0)
 
-    -- XXX: Figure out how to update a JSON object with a new field.
     assertJsonEqual $ object [
       "state" .= ("pending" :: Text),
       "numPlayers" .= (3 :: Int),
