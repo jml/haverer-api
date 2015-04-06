@@ -8,10 +8,7 @@ approot:        "_env:APPROOT:http://localhost:3000"
 ip-from-header: "_env:IP_FROM_HEADER:false"
 static-root:    "_env:STATIC_ROOT:http://localhost:3000/static"
 
-authentication: "_env:AUTHENTICATION_METHOD:google"
-
-google-client-id: "_env:GOOGLE_CLIENT_ID:unset_google_client_id"
-google-client-secret: "_env:GOOGLE_CLIENT_SECRET:unset_google_client_secret"
+authentication: "_env:AUTHENTICATION_METHOD:dummy"
 
 # Optional values with the following production defaults.
 # In development, they default to the inverse.

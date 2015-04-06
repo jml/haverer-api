@@ -59,8 +59,6 @@ ansible-playbook \
   -e local_ssl_certificate_path=$PATH_TO_CERT \
   -e local_ssl_key_path=$PATH_TO_KEY \
   -e local_ssl_ca_path=$PATH_TO_INTERMEDIATE_CERTIFICATES \
-  -e google_client_id=$GOOGLE_CLIENT_ID \
-  -e google_client_secret=$GOOGLE_CLIENT_SECRET \
   production.yml
 ```
 

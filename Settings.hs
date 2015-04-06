@@ -57,13 +57,7 @@ data AppSettings = AppSettings
     -- ^ Base for generated URLs for static content
 
     , authentication            :: Text
-    -- ^ The authentication method to use. Can be 'google' or 'dummy'.
-
-    , googleClientId            :: Text
-    -- ^ Client ID for the Google application used for authentication
-
-    , googleClientSecret        :: Text
-    -- ^ Client secret for the Google application used for authentication
+    -- ^ The authentication method to use. Can only be 'dummy'.
     }
 
 instance FromJSON AppSettings where
@@ -93,8 +87,6 @@ instance FromJSON AppSettings where
         staticRoot                <- o .: "static-root"
 
         authentication <- o .: "authentication"
-        googleClientId <- o .: "google-client-id"
-        googleClientSecret <- o .: "google-client-secret"
 
         return AppSettings {..}
 
