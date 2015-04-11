@@ -13,7 +13,9 @@ $nothing
 
 
 <p class="bg-danger">
-  The API <i>will</i> change and your data <i>will</i> be lost.
+  The API <i>will</i> change and your data <i>will</i> be lost. The current
+  authentication system is ludicrously awful. Any data stored is at your own
+  risk.
 
 <p>You probably want to start by looking at the #
   <a href="@{GamesR}">available games
