@@ -29,11 +29,9 @@
 - name: upload the app-server binary
   sudo: yes
   sudo_user: "{{ app_server_user }}"
-  unarchive:
+  synchronize:
     src: "{{ binary_path }}"
     dest: "/home/{{ app_server_user }}"
-    copy: yes
-    owner: "{{ app_server_user }}"
   notify:
     - restart app-server
 

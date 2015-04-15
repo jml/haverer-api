@@ -24,6 +24,9 @@ CABAL_PATH = os.pathsep.join([
 ])
 
 
+BINARY_OUTPUT_PATH = 'dist/vagrant/haverer-api-latest/'
+
+
 @task
 def vagrant():
     """Configure other tasks to operate on Vagrant instance."""
@@ -75,13 +78,10 @@ def remote_temp_dir():
 
 
 def _binary_dist(tree_path, output_path):
-    with remote_temp_dir() as temp_dir:
-        with cd(tree_path):
-            run('cp -r config/ {}/'.format(temp_dir))
-            run('cp -r static/ {}/'.format(temp_dir))
-            run('cp dist/build/haverer-api/haverer-api {}/'.format(temp_dir))
-        with cd(temp_dir):
-            run('tar -czf {} *'.format(output_path))
+    with cd(tree_path):
+        run('cp -r config/ {}/'.format(output_path))
+        run('cp -r static/ {}/'.format(output_path))
+        run('cp dist/build/haverer-api/haverer-api {}/'.format(output_path))
 
 
 @task
@@ -89,9 +89,10 @@ def bdist(tree_path):
     """Download the build from the server."""
     # XXX: Include the revid in the filename too
     with remote_temp_dir() as temp_dir:
-        tarball_path = os.path.join(temp_dir, 'haverer-api-x86_64-linux.tar.gz')
-        _binary_dist(tree_path, tarball_path)
-        get(tarball_path)
+        _binary_dist(tree_path, temp_dir)
+        get('{}/*'.format(temp_dir), BINARY_OUTPUT_PATH)
+        # XXX: get() doesn't preserve permissions.
+        local('chmod ugo+x {}/haverer-api'.format(BINARY_OUTPUT_PATH))
 
 
 # XXX: Rather than use a tarball here, upload the whole directory.
