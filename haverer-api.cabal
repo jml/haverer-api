@@ -23,7 +23,6 @@ library
                      Handler.Common
                      Handler.Game
                      Handler.Home
-                     GameManagement
 
 
     if flag(dev) || flag(library-only)

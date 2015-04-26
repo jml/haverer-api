@@ -7,7 +7,6 @@
 module Handler.Game where
 
 import Data.Aeson (encode)
-import GameManagement
 import Text.Blaze.Html (ToMarkup, toMarkup)
 import qualified Text.Blaze.Html5              as H
 import Import
