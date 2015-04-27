@@ -37,7 +37,7 @@ getGamesR = do
 
 postGamesR :: Handler TypedContent
 postGamesR = do
-  newGame <- createGame <$> requireJsonBody
+  newGame <- createGame <$> requireAuthId <*> requireJsonBody
   allGames <- appAllGames <$> getYesod
   newId <- atomically $ do
     currentGames <- readTVar allGames

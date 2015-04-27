@@ -62,6 +62,7 @@ spec = withApp $ do
           "turnTimeout" .= (3600 :: Int)
           ]
 
+    -- XXX: User ID of 1. Where does that come from?
     doLogin "testuser"
     postJson GamesR game
     getJson (GameR 0)
@@ -69,5 +70,6 @@ spec = withApp $ do
     assertJsonEqual $ object [
       "state" .= ("pending" :: Text),
       "numPlayers" .= (3 :: Int),
-      "turnTimeout" .= (3600 :: Int)
+      "turnTimeout" .= (3600 :: Int),
+      "creator" .= (1 :: Int)
       ]
