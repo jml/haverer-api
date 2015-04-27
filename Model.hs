@@ -21,6 +21,7 @@ data GameCreationRequest = GameCreationRequest { reqNumPlayers :: Int
 data Game = Pending { numPlayers :: Int
                     , turnTimeout :: Seconds
                     , creator :: UserId
+                    , players :: [UserId]
                     } deriving Show
 
 
@@ -28,15 +29,17 @@ createGame :: UserId -> GameCreationRequest -> Game
 createGame creator req = Pending { numPlayers = reqNumPlayers req
                                  , turnTimeout = reqTurnTimeout req
                                  , creator = creator
+                                 , players = [creator]
                                  }
 
 
 instance ToJSON Game where
-  toJSON (Pending numPlayers turnTimeout creator) = object [
+  toJSON (Pending numPlayers turnTimeout creator players) = object [
     "state" .= ("pending" :: Text),
     "numPlayers" .= numPlayers,
     "turnTimeout" .= turnTimeout,
-    "creator" .= creator
+    "creator" .= creator,
+    "players" .= players
     ]
 
 

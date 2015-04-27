@@ -71,5 +71,6 @@ spec = withApp $ do
       "state" .= ("pending" :: Text),
       "numPlayers" .= (3 :: Int),
       "turnTimeout" .= (3600 :: Int),
-      "creator" .= (1 :: Int)
+      "creator" .= (1 :: Int),
+      "players" .= [1 :: Int]
       ]
