@@ -13,26 +13,37 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"]
 
 type Seconds = Int
 
-data PendingGame = OpenG { numPlayers :: Int
-                         , turnTimeout :: Seconds
-                         } deriving (Eq, Show)
+data GameCreationRequest = GameCreationRequest { reqNumPlayers :: Int
+                                               , reqTurnTimeout :: Seconds
+                                               } deriving (Eq, Show)
 
-data Game = Pending PendingGame deriving Show
+
+data Game = Pending { numPlayers :: Int
+                    , turnTimeout :: Seconds
+                    } deriving Show
+
+
+createGame :: GameCreationRequest -> Game
+createGame req = Pending { numPlayers = reqNumPlayers req
+                         , turnTimeout = reqTurnTimeout req
+                         }
 
 
 instance ToJSON Game where
-  toJSON (Pending g) = object [
+  toJSON (Pending numPlayers turnTimeout) = object [
     "state" .= ("pending" :: Text),
-    "numPlayers" .= numPlayers g,
-    "turnTimeout" .= turnTimeout g
+    "numPlayers" .= numPlayers,
+    "turnTimeout" .= turnTimeout
     ]
 
 
-instance ToJSON PendingGame where
-  toJSON (OpenG { numPlayers = numPlayers,
-                  turnTimeout = turnTimeout }) = object [ "numPlayers" .= numPlayers,
-                                                          "turnTimeout" .= turnTimeout ]
+instance ToJSON GameCreationRequest where
+  toJSON (GameCreationRequest {
+             reqNumPlayers = numPlayers,
+             reqTurnTimeout = turnTimeout
+             }) = object [ "numPlayers" .= numPlayers,
+                           "turnTimeout" .= turnTimeout ]
 
-instance FromJSON PendingGame where
-  parseJSON (Object v) = OpenG <$> v .: "numPlayers" <*> v .: "turnTimeout"
+instance FromJSON GameCreationRequest where
+  parseJSON (Object v) = GameCreationRequest <$> v .: "numPlayers" <*> v .: "turnTimeout"
   parseJSON _ = mzero

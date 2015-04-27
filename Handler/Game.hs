@@ -37,10 +37,10 @@ getGamesR = do
 
 postGamesR :: Handler TypedContent
 postGamesR = do
-  newGame <- requireJsonBody :: Handler PendingGame
+  newGame <- createGame <$> requireJsonBody
   allGames <- appAllGames <$> getYesod
   newId <- atomically $ do
     currentGames <- readTVar allGames
-    writeTVar allGames (Vector.snoc currentGames (Pending newGame))
+    writeTVar allGames (Vector.snoc currentGames newGame)
     return $ Vector.length currentGames
   sendResponseCreated (GameR newId)
