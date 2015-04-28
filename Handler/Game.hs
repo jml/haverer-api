@@ -11,7 +11,7 @@ import Text.Blaze.Html (ToMarkup, toMarkup)
 import qualified Text.Blaze.Html5              as H
 import Import
 
-import Data.Vector ((!?))
+import Data.Vector ((!?), (//))
 import qualified Data.Vector as Vector
 
 
@@ -19,13 +19,36 @@ instance ToMarkup Game where
   toMarkup = H.code . toHtml . decodeUtf8 . encode . toJSON
 
 
-getGameR :: Int -> Handler TypedContent
-getGameR n = do
+getGame :: Int -> Handler (Maybe Game)
+getGame n = do
   allGames <- appAllGames <$> getYesod
   matchingGames <- atomically $ readTVar allGames
-  case matchingGames !? n of
+  return $ matchingGames !? n
+
+
+modifyGame :: Int -> (Game -> Game) -> Handler ()
+modifyGame n f = do
+  allGames <- appAllGames <$> getYesod
+  atomically $ modifyTVar' allGames $
+    \games -> case games !? n of
+               Nothing -> games
+               Just g -> games // [(n, f g)]
+
+
+getGameR :: Int -> Handler TypedContent
+getGameR n = do
+  matchingGame <- getGame n
+  case matchingGame of
    Just game -> defaultLayoutJson $(widgetFile "game") (returnJson game)
    Nothing -> notFound
+
+
+postGameR :: Int -> Handler TypedContent
+postGameR n = do
+  user <- requireAuthId
+  $(logInfo) (pack $ show user)
+  modifyGame n (joinGame user)
+  redirect (GameR n)
 
 
 getGamesR :: Handler TypedContent

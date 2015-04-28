@@ -22,7 +22,11 @@ data Game = Pending { numPlayers :: Int
                     , turnTimeout :: Seconds
                     , creator :: UserId
                     , players :: [UserId]
-                    } deriving Show
+                    }
+          | InProgress { turnTimeout :: Seconds
+                       , creator :: UserId
+                       }
+          deriving Show
 
 
 createGame :: UserId -> GameCreationRequest -> Game
@@ -33,6 +37,27 @@ createGame creator req = Pending { numPlayers = reqNumPlayers req
                                  }
 
 
+beginGame :: Game -> Game
+beginGame (Pending { turnTimeout = turnTimeout, creator = creator}) =
+  InProgress { turnTimeout = turnTimeout
+             , creator = creator
+             }
+beginGame (InProgress { .. }) = error "Cannot begin game that's already going"
+
+-- XXX: Use lenses for this?
+-- XXX: Non-pending game once they've joined.
+-- XXX: Tests
+joinGame :: UserId -> Game -> Game
+joinGame newPlayer p@(Pending { players = players, numPlayers = numPlayers }) =
+  let newPlayers = newPlayer:players
+      currentPlayers = length newPlayers in
+   case compare currentPlayers numPlayers of
+    LT -> p { players = newPlayers }
+    EQ -> beginGame p
+    GT -> error "Game is already full"
+joinGame _ _ = error "Cannot join game that's already started"
+
+
 instance ToJSON Game where
   toJSON (Pending numPlayers turnTimeout creator players) = object [
     "state" .= ("pending" :: Text),
@@ -40,6 +65,11 @@ instance ToJSON Game where
     "turnTimeout" .= turnTimeout,
     "creator" .= creator,
     "players" .= players
+    ]
+  toJSON (InProgress turnTimeout creator) = object [
+    "state" .= ("in-progress" :: Text),
+    "turnTimeout" .= turnTimeout,
+    "creator" .= creator
     ]
 
 

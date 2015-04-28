@@ -4,7 +4,7 @@ import Data.Aeson
 import Network.HTTP.Types.Header (hAccept)
 import Network.Wai.Test (simpleBody)
 
-import Handler.Utilities (doLogin, needsLogin, testUrl, StdMethod(POST))
+import Handler.Utilities (assertRedirect, doLogin, needsLogin, testUrl, StdMethod(POST))
 import TestImport
 
 
@@ -73,4 +73,54 @@ spec = withApp $ do
       "turnTimeout" .= (3600 :: Int),
       "creator" .= (1 :: Int),
       "players" .= [1 :: Int]
+      ]
+
+  it "people can sign-up to a game" $ do
+    let game = object [
+          "numPlayers" .= (3 :: Int),
+          "turnTimeout" .= (3600 :: Int)
+          ]
+
+    -- XXX: User ID of 1. Where does that come from?
+    doLogin "testuser"
+    postJson GamesR game
+    getJson (GameR 0)
+
+    doLogin "anotheruser"
+    postJson (GameR 0) (object [])
+
+    assertRedirect "/game/0"
+
+    getJson (GameR 0)
+
+    assertJsonEqual $ object [
+      "state" .= ("pending" :: Text),
+      "numPlayers" .= (3 :: Int),
+      "turnTimeout" .= (3600 :: Int),
+      "creator" .= (1 :: Int),
+      "players" .= [2 :: Int, 1 :: Int]
+      ]
+
+  it "starts the game when everyone is signed up" $ do
+    let game = object [
+          "numPlayers" .= (2 :: Int),
+          "turnTimeout" .= (3600 :: Int)
+          ]
+
+    -- XXX: User ID of 1. Where does that come from?
+    doLogin "testuser"
+    postJson GamesR game
+    getJson (GameR 0)
+
+    doLogin "anotheruser"
+    postJson (GameR 0) (object [])
+
+    assertRedirect "/game/0"
+
+    getJson (GameR 0)
+
+    assertJsonEqual $ object [
+      "state" .= ("in-progress" :: Text),
+      "turnTimeout" .= (3600 :: Int),
+      "creator" .= (1 :: Int)
       ]

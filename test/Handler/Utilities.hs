@@ -2,6 +2,7 @@
 
 module Handler.Utilities (
     assertFailure,
+    assertRedirect,
     urlPath,
     needsLogin,
     doLogin,
@@ -33,6 +34,14 @@ testUrl path = do
 assertFailure :: String -> YesodExample App ()
 assertFailure msg = assertEqual msg True False
 
+
+-- | Assert that we get redirected to a URL.
+assertRedirect url = do
+  fullUrl <- testUrl url
+  maybeUrl <- extractLocation
+  assertEqual
+    ("Should be redirected to " ++ (show fullUrl) ++ ", got " ++ (show maybeUrl))
+    (Just fullUrl) maybeUrl
 
 -- Convert an absolute URL (eg extracted from responses) to just the path
 -- for use in test requests.

@@ -7,7 +7,7 @@
 / HomeR GET
 
 /games GamesR GET POST
-/game/#Int GameR GET
+/game/#Int GameR GET POST
 
 -- /game/#GameId GET POST
 -- /game/#GameId/round/#RoundId GET POST
