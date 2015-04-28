@@ -18,9 +18,9 @@ data GameCreationRequest = GameCreationRequest { reqNumPlayers :: Int
                                                } deriving (Eq, Show)
 
 
-data Game = Pending { numPlayers :: Int
-                    , turnTimeout :: Seconds
+data Game = Pending { turnTimeout :: Seconds
                     , creator :: UserId
+                    , numPlayers :: Int
                     , players :: [UserId]
                     }
           | InProgress { turnTimeout :: Seconds
@@ -45,8 +45,7 @@ beginGame (Pending { turnTimeout = turnTimeout, creator = creator}) =
 beginGame (InProgress { .. }) = error "Cannot begin game that's already going"
 
 -- XXX: Use lenses for this?
--- XXX: Non-pending game once they've joined.
--- XXX: Tests
+-- XXX: Direct tests
 joinGame :: UserId -> Game -> Game
 joinGame newPlayer p@(Pending { players = players, numPlayers = numPlayers }) =
   let newPlayers = newPlayer:players
@@ -59,11 +58,11 @@ joinGame _ _ = error "Cannot join game that's already started"
 
 
 instance ToJSON Game where
-  toJSON (Pending numPlayers turnTimeout creator players) = object [
+  toJSON (Pending turnTimeout creator numPlayers players) = object [
     "state" .= ("pending" :: Text),
-    "numPlayers" .= numPlayers,
     "turnTimeout" .= turnTimeout,
     "creator" .= creator,
+    "numPlayers" .= numPlayers,
     "players" .= players
     ]
   toJSON (InProgress turnTimeout creator) = object [
