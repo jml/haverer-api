@@ -101,6 +101,34 @@ spec = withApp $ do
       "players" .= [2 :: Int, 1 :: Int]
       ]
 
+  it "signing up twice is same as signing up once" $ do
+    let game = object [
+          "numPlayers" .= (3 :: Int),
+          "turnTimeout" .= (3600 :: Int)
+          ]
+
+    -- XXX: User ID of 1. Where does that come from?
+    doLogin "testuser"
+    postJson GamesR game
+    getJson (GameR 0)
+
+    doLogin "anotheruser"
+    postJson (GameR 0) (object [])
+    assertRedirect "/game/0"
+
+    postJson (GameR 0) (object [])
+    assertRedirect "/game/0"
+
+    getJson (GameR 0)
+
+    assertJsonEqual $ object [
+      "state" .= ("pending" :: Text),
+      "numPlayers" .= (3 :: Int),
+      "turnTimeout" .= (3600 :: Int),
+      "creator" .= (1 :: Int),
+      "players" .= [2 :: Int, 1 :: Int]
+      ]
+
   it "starts the game when everyone is signed up" $ do
     let game = object [
           "numPlayers" .= (2 :: Int),

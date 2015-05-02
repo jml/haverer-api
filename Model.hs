@@ -64,7 +64,8 @@ beginGame (InProgress { .. }) = error "Cannot begin game that's already going"
 -- XXX: Direct tests
 joinGame :: UserId -> Game -> Game
 joinGame newPlayer p@(Pending { .. }) =
-  let newPlayers = newPlayer:(players p)
+  let players' = players p
+      newPlayers = if (newPlayer `oelem` players') then players' else newPlayer:players'
       currentPlayers = length newPlayers in
    case compare currentPlayers (numPlayers p) of
     LT -> p { _players = newPlayers }
