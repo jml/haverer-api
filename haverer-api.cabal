@@ -84,6 +84,7 @@ library
                  , vector
                  , time
                  , blaze-html
+                 , haverer
 
 executable         haverer-api
     if flag(library-only)
@@ -134,3 +135,4 @@ test-suite test
                  , aeson
                  , wai-extra
                  , network-uri
+                 , haverer

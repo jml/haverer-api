@@ -46,7 +46,6 @@ getGameR n = do
 postGameR :: Int -> Handler TypedContent
 postGameR n = do
   user <- requireAuthId
-  $(logInfo) (pack $ show user)
   modifyGame n (joinGame user)
   redirect (GameR n)
 

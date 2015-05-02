@@ -122,5 +122,7 @@ spec = withApp $ do
     assertJsonEqual $ object [
       "state" .= ("in-progress" :: Text),
       "turnTimeout" .= (3600 :: Int),
-      "creator" .= (1 :: Int)
+      "creator" .= (1 :: Int),
+      "numPlayers" .= (2 :: Int),
+      "players" .= [2, 1 :: Int]
       ]

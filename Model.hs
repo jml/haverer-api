@@ -3,6 +3,9 @@ module Model where
 import ClassyPrelude.Yesod
 import Database.Persist.Quasi
 
+import qualified Haverer.Game as H
+import Haverer.Player (toPlayers, toPlayerSet)
+
 -- You can define all of your database entities in the entities file.
 -- You can find more information on persistent and how to declare entities
 -- at:
@@ -20,64 +23,77 @@ data GameCreationRequest = GameCreationRequest { reqNumPlayers :: Int
 
 data Game = Pending { turnTimeout :: Seconds
                     , creator :: UserId
-                    , numPlayers :: Int
-                    , players :: [UserId]
+                    , _numPlayers :: Int
+                    , _players :: [UserId]
                     }
           | InProgress { turnTimeout :: Seconds
                        , creator :: UserId
+                       , game :: H.Game UserId
                        }
           deriving Show
 
 
 createGame :: UserId -> GameCreationRequest -> Game
-createGame creator req = Pending { numPlayers = reqNumPlayers req
-                                 , turnTimeout = reqTurnTimeout req
+createGame creator req = Pending { turnTimeout = reqTurnTimeout req
                                  , creator = creator
-                                 , players = [creator]
+                                 , _numPlayers = reqNumPlayers req
+                                 , _players = [creator]
                                  }
+
+players :: Game -> [UserId]
+players (Pending { _players = players' }) = players'
+players (InProgress { .. }) = toPlayers $ H.players $ game
+
+numPlayers :: Game -> Int
+numPlayers (Pending { _numPlayers = numPlayers' }) = numPlayers'
+numPlayers g@(InProgress { .. }) = length $ players g
 
 
 beginGame :: Game -> Game
-beginGame (Pending { turnTimeout = turnTimeout, creator = creator}) =
+beginGame (Pending { .. }) =
   InProgress { turnTimeout = turnTimeout
              , creator = creator
+             , game = H.makeGame playerSet
              }
+  where playerSet = case toPlayerSet _players of
+                     Left e -> error (show e)
+                     Right r -> r
 beginGame (InProgress { .. }) = error "Cannot begin game that's already going"
 
 -- XXX: Use lenses for this?
 -- XXX: Direct tests
 joinGame :: UserId -> Game -> Game
-joinGame newPlayer p@(Pending { players = players, numPlayers = numPlayers }) =
-  let newPlayers = newPlayer:players
+joinGame newPlayer p@(Pending { .. }) =
+  let newPlayers = newPlayer:(players p)
       currentPlayers = length newPlayers in
-   case compare currentPlayers numPlayers of
-    LT -> p { players = newPlayers }
-    EQ -> beginGame p
+   case compare currentPlayers (numPlayers p) of
+    LT -> p { _players = newPlayers }
+    EQ -> beginGame $ p { _players = newPlayers }
     GT -> error "Game is already full"
 joinGame _ _ = error "Cannot join game that's already started"
 
 
 instance ToJSON Game where
-  toJSON (Pending turnTimeout creator numPlayers players) = object [
+  toJSON (Pending { .. }) = object [
     "state" .= ("pending" :: Text),
     "turnTimeout" .= turnTimeout,
     "creator" .= creator,
-    "numPlayers" .= numPlayers,
-    "players" .= players
+    "numPlayers" .= _numPlayers,
+    "players" .= _players
     ]
-  toJSON (InProgress turnTimeout creator) = object [
+  toJSON g@(InProgress { .. }) = object [
     "state" .= ("in-progress" :: Text),
     "turnTimeout" .= turnTimeout,
-    "creator" .= creator
+    "creator" .= creator,
+    "numPlayers" .= (numPlayers g),
+    "players" .= (players g)
     ]
 
 
 instance ToJSON GameCreationRequest where
-  toJSON (GameCreationRequest {
-             reqNumPlayers = numPlayers,
-             reqTurnTimeout = turnTimeout
-             }) = object [ "numPlayers" .= numPlayers,
-                           "turnTimeout" .= turnTimeout ]
+  toJSON (GameCreationRequest { .. }) = object [ "numPlayers" .= reqNumPlayers
+                                               , "turnTimeout" .= reqTurnTimeout
+                                               ]
 
 
 instance FromJSON GameCreationRequest where
