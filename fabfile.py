@@ -3,8 +3,9 @@
 import contextlib
 import errno
 import os
+import tempfile
 
-from fabric.api import cd, env, get, local, settings, sudo, put, task, run
+from fabric.api import cd, env, get, lcd, local, settings, sudo, put, task, run
 from fabric.context_managers import path
 
 
@@ -27,6 +28,90 @@ CABAL_PATH = os.pathsep.join([
 BINARY_OUTPUT_PATH = 'dist/vagrant/haverer-api-latest/'
 
 
+# XXX: This is a terrible hack to allow us to have haverer as a dependency on
+# the build server. Fixes include making a real CI server (Hydra? Nix?) or
+# putting both trees into one repo and moving the build infrastructure up a
+# level.
+SOURCE_DEPENDENCIES = [
+    '../haverer',
+]
+
+
+def ensure_directory(directory):
+    try:
+        os.makedirs(directory)
+    except OSError as e:
+        if e.errno != errno.EEXIST:
+            raise
+
+
+# XXX: Rather than use a tarball here, upload the whole directory.
+def _source_dist(prefix, revid, directory):
+    """Build a tarball of the given revid.
+
+    :param prefix: The prefix of the tarball. Created file will be
+        $prefix.tar.gz, and will untar into a directory called $prefix/
+    :param revid: The git revision ID to export.
+    :param path: The local directory to store the tarball in.
+    :return: The full path to the created tarball.
+    """
+    output_path = '{directory}/{prefix}.tar.gz'.format(
+        directory=directory, prefix=prefix)
+    cmd = 'git archive --prefix={prefix}/ -o {path} {revid}'
+    local(cmd.format(prefix=prefix, revid=revid, path=output_path))
+    return output_path
+
+
+def make_git_snapshot(source_dir=None, target_dir=None, revid='HEAD',
+                      name=None):
+    if source_dir is None:
+        source_dir = os.getcwd()
+    if target_dir is None:
+        target_dir = tempfile.mkdtemp()
+    if name is None:
+        name = os.path.basename(os.path.abspath(source_dir))
+    ensure_directory(target_dir)
+    with lcd(source_dir):
+        revno = local('git rev-parse {}'.format(revid), capture=True).strip()
+        return _source_dist('{}-{}'.format(name, revno), revno, target_dir)
+
+
+def tarball_directory(filename):
+    return local('tar -tf {} | head -1'.format(filename), capture=True).strip()
+
+
+def upload_tarball(source_file, remote_dir):
+    result = put(source_file, '/tmp/')
+    if result.failed:
+        raise RuntimeError("Could not upload {}".format(source_file))
+    [remote_path] = list(result)
+    with cd(remote_dir):
+        sudo('tar -xf {}'.format(remote_path))
+    return os.path.join(remote_dir, tarball_directory(source_file))
+
+
+@contextlib.contextmanager
+def remote_temp_dir():
+    temp_dir = run('mktemp -d').strip()
+    try:
+        yield temp_dir
+    finally:
+        run('rm -rf {}'.format(temp_dir))
+
+
+def upload_source_dep(source_dir, target_dir):
+    source_dir = os.path.abspath(source_dir)
+    tarball_path = make_git_snapshot(source_dir)
+    return upload_tarball(tarball_path, target_dir)
+
+
+def upload_source_deps(src_deps, target_dir):
+    paths = []
+    for dep in src_deps:
+        paths.append(upload_source_dep(dep, target_dir))
+    return paths
+
+
 @task
 def vagrant():
     """Configure other tasks to operate on Vagrant instance."""
@@ -47,34 +132,27 @@ def vagrant():
     env.key_filename = result.split()[1]
 
 
-def tarball_directory(filename):
-    return local('tar -tf {} | head -1'.format(filename), capture=True).strip()
-
-
 @task
 def source_to_binary(source_file):
     """Upload source code, build it, and return the path to the binary."""
+    sandbox_dir = '/home/{}'.format(CABAL_USER)
     [remote_path] = list(put(source_file, '/tmp/'))
-    with cd('/home/{}'.format(CABAL_USER)):
+    with cd(sandbox_dir):
         with settings(sudo_user=CABAL_USER,
-                      sudo_prefix="sudo -S -i -p '{}'".format(env.sudo_prompt)):
-            sudo('rm -rf *'.format(CABAL_USER))
-            sudo('tar -xf {}'.format(remote_path))
+                      sudo_prefix="sudo -S -i -p '{}'".format(
+                          env.sudo_prompt)):
             with path(CABAL_PATH, behavior='prepend'):
+                deps = upload_source_deps(SOURCE_DEPENDENCIES, sandbox_dir)
+                sudo('tar -xf {}'.format(remote_path))
+                sudo('cabal sandbox init --sandbox .')
+                for src_dir in deps:
+                    sudo('cabal sandbox add-source {}'.format(src_dir))
                 src_dir = tarball_directory(source_file)
                 with cd(src_dir):
+                    sudo('cabal sandbox init --sandbox {}'.format(sandbox_dir))
                     sudo('cabal install --dependencies-only')
                     sudo('cabal build')
     return '/home/{}/{}'.format(CABAL_USER, src_dir)
-
-
-@contextlib.contextmanager
-def remote_temp_dir():
-    temp_dir = run('mktemp -d').strip()
-    try:
-        yield temp_dir
-    finally:
-        run('rm -rf {}'.format(temp_dir))
 
 
 def _binary_dist(tree_path, output_path):
@@ -95,34 +173,11 @@ def bdist(tree_path):
         local('chmod ugo+x {}/haverer-api'.format(BINARY_OUTPUT_PATH))
 
 
-# XXX: Rather than use a tarball here, upload the whole directory.
-def _source_dist(prefix, revid, directory):
-    """Build a tarball of the given revid.
-
-    :param prefix: The prefix of the tarball. Created file will be
-        $prefix.tar.gz, and will untar into a directory called $prefix/
-    :param revid: The git revision ID to export.
-    :param path: The local directory to store the tarball in.
-    :return: The full path to the created tarball.
-    """
-    output_path = '{directory}/{prefix}.tar.gz'.format(
-        directory=directory, prefix=prefix)
-    cmd = 'git archive --prefix={prefix}/ -o {path} {revid}'
-    local(cmd.format(prefix=prefix, revid=revid, path=output_path))
-    return output_path
-
-
 @task
 def sdist():
     """Build a tarball of current HEAD, and store it in dist/src/."""
     directory = os.path.join('dist', 'src')
-    try:
-        os.makedirs(directory)
-    except OSError as e:
-        if e.errno != errno.EEXIST:
-            raise
-    revno = local('git rev-parse HEAD', capture=True).strip()
-    return _source_dist('haverer-api-{}'.format(revno), 'HEAD', directory)
+    return make_git_snapshot(target_dir=directory)
 
 
 @task
