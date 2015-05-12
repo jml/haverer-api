@@ -1,28 +1,17 @@
 # haverer-api
 
-A web API for [haverer](https://github.com/jml/haverer).
+A deprecated, experimental, partial REST API for playing Love Letter,
+implemented using [Yesod](http://www.yesodweb.com).
 
-Live service at https://haverer.jml.io/. Use at your own peril.
+This repository is kept for historical purposes only. Please do not use this.
 
-Run the devel server with:
-
-```
-AUTHENTICATION_METHOD=dummy yesod devel
-```
+The underlying library is still maintained at
+[haverer](https://github.com/jml/haverer).
 
 ## License
 
 This code is copyright Jonathan M. Lange, 2015, and is made available
 under the Apache License, version 2.0. See LICENSE for details.
-
-## Bugs
-
-Please file issues on the
-[Github issue tracker](https://github.com/jml/haverer/issues)
-
-## Patches
-
-Are most welcome.
 
 ## Further reading
 
